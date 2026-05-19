@@ -275,8 +275,78 @@ st.info("Add your own dashboard visuals, KPIs, forecast-vs-actual plots, and wri
 st.code(
     """
 # STUDENT ADDITIONS - DASHBOARD
-# Add plots, KPIs, and project insights here.
-# Include at least one clear dashboard chart for your final submission.
+# ===============================
+# STUDENT ADDITIONS — MODELING
+# Paste this under the MODELING marker
+# ===============================
+
+from sklearn.dummy import DummyRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+results_df = None
+
+st.subheader("Student Addition: Forecasting Models")
+
+if len(feature_df) < 8:
+    st.warning("Not enough rows for a reliable train/test split. Add more time periods if available.")
+else:
+    # Time-based split: first 75% train, last 25% test
+    split_idx = int(len(feature_df) * 0.75)
+
+    X_train = X.iloc[:split_idx]
+    X_test = X.iloc[split_idx:]
+    y_train = y.iloc[:split_idx]
+    y_test = y.iloc[split_idx:]
+
+    models = {
+        "Baseline Mean": DummyRegressor(strategy="mean"),
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(
+            n_estimators=100,
+            random_state=42,
+            max_depth=3
+        )
+    }
+
+    rows = []
+    predictions_plot = pd.DataFrame({
+        "actual": y_test.values
+    }, index=y_test.index)
+
+    for model_name, model in models.items():
+        model.fit(X_train, y_train)
+        preds = model.predict(X_test)
+
+        mae = mean_absolute_error(y_test, preds)
+        rmse = mean_squared_error(y_test, preds) ** 0.5
+        r2 = r2_score(y_test, preds) if len(y_test) > 1 else None
+
+        rows.append({
+            "model": model_name,
+            "MAE": mae,
+            "RMSE": rmse,
+            "R2": r2
+        })
+
+        predictions_plot[model_name] = preds
+
+    results_df = pd.DataFrame(rows).sort_values("RMSE")
+
+    st.write("### Metrics Table")
+    st.dataframe(results_df, use_container_width=True)
+
+    st.write("### Actual vs Predicted")
+    st.line_chart(predictions_plot)
+
+    best_model = results_df.iloc[0]["model"]
+    st.success(f"Best model by RMSE: {best_model}")
+
+    st.info(
+        "Because this dataset has only 12 monthly observations, the metrics are useful "
+        "as a demonstration but should not be treated as strong evidence of real-world accuracy."
+    )
 """,
     language="python",
 )
