@@ -259,22 +259,6 @@ st.info("Add your own time-based split, models, predictions, metrics table, and 
 st.code(
     """
 # STUDENT ADDITIONS - MODELING
-# Add your time-based train/test split here.
-# Train at least one meaningful forecasting model.
-# Create a metrics table named results_df.
-# Example final object expected by exports:
-# results_df = pd.DataFrame([...])
-""",
-    language="python",
-)
-
-results_df = None
-
-st.header("5. STUDENT ADDITIONS — DASHBOARD")
-st.info("Add your own dashboard visuals, KPIs, forecast-vs-actual plots, and written insights below this marker in app.py.")
-st.code(
-    """
-# STUDENT ADDITIONS - DASHBOARD
 # ===============================
 # STUDENT ADDITIONS — MODELING
 # Paste this under the MODELING marker
@@ -346,6 +330,22 @@ else:
     st.info(
         "Because this dataset has only 12 monthly observations, the metrics are useful "
         "as a demonstration but should not be treated as strong evidence of real-world accuracy."
+# Train at least one meaningful forecasting model.
+# Create a metrics table named results_df.
+# Example final object expected by exports:
+# results_df = pd.DataFrame([...])
+""",
+    language="python",
+)
+
+results_df = None
+
+st.header("5. STUDENT ADDITIONS — DASHBOARD")
+st.info("Add your own dashboard visuals, KPIs, forecast-vs-actual plots, and written insights below this marker in app.py.")
+st.code(
+    """
+# STUDENT ADDITIONS - DASHBOARD
+
     )
 """,
     language="python",
