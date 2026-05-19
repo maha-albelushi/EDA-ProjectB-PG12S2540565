@@ -345,7 +345,83 @@ st.info("Add your own dashboard visuals, KPIs, forecast-vs-actual plots, and wri
 st.code(
     """
 # STUDENT ADDITIONS - DASHBOARD
+# ===============================
+# STUDENT ADDITIONS — DASHBOARD
+# Paste this under the DASHBOARD marker
+# ===============================
 
+st.subheader("Student Addition: Solar PV Dashboard")
+
+dashboard_df = ts_df.copy()
+
+# Ensure timestamp column is datetime
+dashboard_df[time_col] = pd.to_datetime(dashboard_df[time_col], errors="coerce")
+dashboard_df = dashboard_df.dropna(subset=[time_col, target_col]).sort_values(time_col)
+
+dashboard_df["month_name"] = dashboard_df[time_col].dt.month_name()
+dashboard_df["month_number"] = dashboard_df[time_col].dt.month
+
+# KPI row
+avg_pvout = dashboard_df[target_col].mean()
+max_pvout = dashboard_df[target_col].max()
+min_pvout = dashboard_df[target_col].min()
+best_month = dashboard_df.loc[dashboard_df[target_col].idxmax(), "month_name"]
+lowest_month = dashboard_df.loc[dashboard_df[target_col].idxmin(), "month_name"]
+
+kpi1, kpi2, kpi3 = st.columns(3)
+
+with kpi1:
+    st.metric("Average PV Output", f"{avg_pvout:.2f}")
+
+with kpi2:
+    st.metric("Best Month", best_month, f"{max_pvout:.2f}")
+
+with kpi3:
+    st.metric("Lowest Month", lowest_month, f"{min_pvout:.2f}")
+
+# Trend chart
+st.write("### Monthly PV Output Trend")
+trend_df = dashboard_df.set_index(time_col)[[target_col]]
+st.line_chart(trend_df)
+
+# Monthly bar chart
+st.write("### PV Output by Month")
+monthly_chart = dashboard_df.sort_values("month_number").set_index("month_name")[[target_col]]
+st.bar_chart(monthly_chart)
+
+# Seasonal comparison
+def get_season(month):
+    if month in [12, 1, 2]:
+        return "Winter"
+    elif month in [3, 4, 5]:
+        return "Spring"
+    elif month in [6, 7, 8]:
+        return "Summer"
+    else:
+        return "Autumn"
+
+dashboard_df["season"] = dashboard_df["month_number"].apply(get_season)
+
+season_df = (
+    dashboard_df.groupby("season", as_index=False)[target_col]
+    .mean()
+    .sort_values(target_col, ascending=False)
+)
+
+st.write("### Average PV Output by Season")
+st.dataframe(season_df, use_container_width=True)
+st.bar_chart(season_df.set_index("season")[[target_col]])
+
+# Insight text
+st.write("### Dashboard Insights")
+st.markdown(
+    f"""
+    - The highest average PV output occurs in **{best_month}**.
+    - The lowest average PV output occurs in **{lowest_month}**.
+    - The average PV output across the available monthly data is **{avg_pvout:.2f}**.
+    - Seasonal comparison helps show whether solar potential is stronger in cooler or warmer parts of the year.
+    """
+)
     )
 """,
     language="python",
